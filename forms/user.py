@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField, FileField
+from wtforms import PasswordField, StringField, TextAreaField, SubmitField, BooleanField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired
 
@@ -20,7 +20,7 @@ class UpdateForm(FlaskForm):
     phone_num = StringField('Номер Телефона', validators=[DataRequired()])
     about = TextAreaField("Сведенье")
     contacts = TextAreaField("Контакты")
-    submit = SubmitField('Войти')
+    submit = SubmitField('Сохранить')
 
 
 class LoginForm(FlaskForm):

@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_restful import Api
-from get_friends import get_names
+from get_friends import get_names, get_ids
 from data.chats_table import Chats
 from data.users_table import User
 from forms.chats import ChatsForm
@@ -78,7 +78,7 @@ def logout():
 
 @app.route('/addchat',  methods=['GET', 'POST'])
 @login_required
-def add_jobs():
+def add_chat():
     form = ChatsForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -105,9 +105,9 @@ def choose_users():
     return render_template('choose_users.html', title='Добавление участников', persons=persons)
 
 
-@app.route('/person_info', methods=['GET', 'POST'])
+@app.route('/person_info/<int:id>', methods=['GET', 'POST'])
 @login_required
-def person_info():
+def person_info(id):
     form = UpdateForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
@@ -117,24 +117,50 @@ def person_info():
             form.email.data = user.email,
             form.phone_num.data = user.phone_number,
             form.about.data = user.about_user
-            form.contacts.data = '\n'.join(get_names(user.friends))
+            if user.friends:
+                form.contacts.data = '\n'.join(get_names(user.friends))
+            else:
+                form.contacts.data = None
         else:
             abort(404)
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
+            print(form.name.data)
             user.user_name = form.name.data,
             user.email = form.email.data,
             user.phone_number = form.phone_num.data,
             user.about_user = form.about.data
-            user.friends =
+            if form.contacts.data:
+                user.friends = get_ids(form.contacts.data)
+            else:
+                user.friends = None
             db_sess.commit()
             return redirect('/')
         else:
             abort(404)
     return render_template('person_info.html', title='Информация', form=form)
 
+
+@app.route('/add_user',  methods=['GET', 'POST'])
+@login_required
+def add_user():
+    form = ChatsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        chats = Chats()
+        chats.chat_name = form.name.data
+        chats.about_chat = form.about.data
+
+        chats.collaborators = form.collaborators.data
+        chats.is_finished = form.is_finished.data
+        current_user.jobs.append(chats)
+
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('addchat.html', title='Создание чата', form=form)
 
 
 
