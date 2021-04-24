@@ -23,6 +23,12 @@ class UpdateForm(FlaskForm):
     submit = SubmitField('Сохранить')
 
 
+class AddingForm(FlaskForm):
+    email = EmailField('Почта пользователя', validators=[DataRequired()])
+    phone_num = StringField('Номер телефона пользователя', validators=[DataRequired()])
+    submit = SubmitField('Найти')
+
+
 class LoginForm(FlaskForm):
     name = StringField('Имя пользователя', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
