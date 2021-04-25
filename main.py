@@ -138,9 +138,9 @@ def person_info(id):
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
             print(form.name.data)
-            user.user_name = form.name.data,
-            user.email = form.email.data,
-            user.phone_number = form.phone_num.data,
+            user.user_name = form.name.data
+            user.email = form.email.data
+            user.phone_number = form.phone_num.data
             user.about_user = form.about.data
             if form.contacts.data:
                 user.friends = get_ids(form.contacts.data)
