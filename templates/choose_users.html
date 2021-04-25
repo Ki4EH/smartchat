@@ -4,7 +4,16 @@
 <div class="titles">
     <center>Участники</center>
 </div>
-<center><a href="/addchat" class="btn btn-warning btn-lg">Применить</a></center>
+{% macro check_checking() -%}
+    {% for pers in persons%}
+        {% if pers.checked %}
+            {{checked_users.append(pers)}}
+        {% elif pers in checked_users %}
+            {{checked_users.remove(pers)}}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}
+<center><a onclick="{{ check_checking() }}" href="/addchat" class="btn btn-warning btn-lg">Применить</a></center>
 <div class="list-group">
     {% if persons %}
         {% set checked_users = [] %}
@@ -13,11 +22,6 @@
               <input class="form-check-input me-1" type="checkbox" value="" id={{pers}}>
               {{pers}}
             </label>
-            {% if pers.checked %}
-                {{ checked_users.append(pers) }}
-            {% elif pers in checked_users %}
-                {{ checked_users.remove(pers) }}
-            {% endif %}
         {% endfor %}
     {% endif %}
 </div>
