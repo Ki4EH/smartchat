@@ -9,3 +9,7 @@ class ChatsForm(FlaskForm):
     persons = StringField('Участники', validators=[DataRequired()])
     about = TextAreaField("Описание")
     submit = SubmitField('Создать')
+
+
+class ChatsUsersForm(FlaskForm):
+    submit = SubmitField('Применить')

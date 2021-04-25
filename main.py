@@ -4,7 +4,7 @@ from flask_restful import Api
 from get_friends import get_names, get_ids
 from data.chats_table import Chats
 from data.users_table import User
-from forms.chats import ChatsForm
+from forms.chats import ChatsForm, ChatsUsersForm
 from forms.user import RegisterForm, LoginForm, UpdateForm, AddingForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from data import db_session  #, news_api, news_resources
@@ -79,13 +79,13 @@ def logout():
 @app.route('/addchat',  methods=['GET', 'POST'])
 @login_required
 def add_chat():
-
     form = ChatsForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         chats = Chats()
         chats.chat_name = form.name.data
         chats.about_chat = form.about.data
+        chats.users = ChatsUsersForm().persons.data
 
         chats.collaborators = form.collaborators.data
         chats.is_finished = form.is_finished.data
@@ -97,12 +97,21 @@ def add_chat():
     return render_template('addchat.html', title='Создание чата', form=form)
 
 
-@app.route('/choose_users')
+@app.route('/choose_users', methods=['GET', 'POST'])
 def choose_users():
     persons = current_user.friends
     if persons:
         persons = get_names(persons)
-    return render_template('choose_users.html', title='Добавление участников', persons=persons)
+    form = ChatsUsersForm()
+    if form.validate_on_submit():
+        bar = request.form.getlist('pers')
+        print('nigga')
+        print(bar)
+        for pers in persons:
+            print(pers)
+            bar = request.form.getlist(pers)
+            print(bar)
+    return render_template('choose_users.html', title='Добавление участников', persons=persons, form=form)
 
 
 @app.route('/person_info/<int:id>', methods=['GET', 'POST'])
@@ -168,7 +177,6 @@ def add_user():
         message = 'Такого пользователя не существует'
         return render_template('adduser.html', title='Добавить контакт', form=form, message=message)
     return render_template('adduser.html', title='Добавить контакт', form=form)
-
 
 
 def main():

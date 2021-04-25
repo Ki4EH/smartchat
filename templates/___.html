@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="titles">
+    <center>Участники</center>
+</div>
+{% set checked_users = [] %}
+{% macro check_checking() -%}
+    {% for pers in persons%}
+        {% if pers.checked %}
+            {{checked_users.append(pers)}}
+        {% elif pers in checked_users %}
+            {{checked_users.remove(pers)}}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}
+<center><a onclick="{{ check_checking() }}" href="/addchat" class="btn btn-warning btn-lg">Применить</a></center>
+<div class="list-group">
+    {% if persons %}
+        {% for pers in persons%}
+            <label class="list-group-item">
+              <input class="form-check-input me-1" type="checkbox" value="" id={{pers}}>
+              {{pers}}
+            </label>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+
+
+<center><a href="/addchat" class="btn btn-warning btn-lg">Применить</a></center>
+
+
+
+<form action="" method="post">
+            <label class="list-group-item">
+              <input class="form-check-input me-1" type="checkbox" value="" name={{pers}}>
+              {{pers}}
+            </label>
+            </form>
+
+
+
+
+
+
+
+
+
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="titles">
+    <center>Участники</center>
+</div>
+{% set checked_users = [] %}
+{% macro check_checking() -%}
+    {% for pers in persons%}
+        {% if pers.checked %}
+            {{checked_users.append(pers)}}
+        {% endif %}
+    {% endfor %}
+<h1>{{ str(checked_users) }}</h1>
+{%- endmacro %}
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <center>{{ form.submit(type="submit", class="btn btn-warning btn-lg", onclick="{{ check_checking() }}") }}</center>
+</form>
+
+<div class="list-group">
+    {% if persons %}
+        {% for pers in persons%}
+            <label class="list-group-item">
+              <input class="form-check-input me-1" type="checkbox" value="" name={{pers}}>
+              {{pers}}
+            </label>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
