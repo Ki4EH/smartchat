@@ -13,3 +13,4 @@ class ChatsForm(FlaskForm):
 
 class ChatsUsersForm(FlaskForm):
     submit = SubmitField('Применить')
+    email_friends = StringField('Почта друзей', validators=[DataRequired()])

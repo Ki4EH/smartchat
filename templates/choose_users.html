@@ -9,18 +9,15 @@
     {{ form.hidden_tag() }}
     <center>{{ form.submit(type="submit", class="btn btn-warning btn-lg") }}</center>
 
-
-{% if persons %}
-    {% for pers in persons%}
-        <label class="list-group-item">
-            <input class="form-check-input me-1" type="checkbox" value="">
-          {{pers}}
-        </label>
+<p>
+    {{ form.email_friends.label }}<br>
+    {{ form.email_friends(class="form-control", type="email") }}<br>
+    {% for error in form.email_friends.errors %}
+        <p class="alert alert-danger" role="alert">
+            {{ error }}
+        </p>
     {% endfor %}
-{% endif %}
-
+</p>
 </form>
-
-<div class="list-group">
-</div>
+<h1>{{ message }}</h1>
 {% endblock %}

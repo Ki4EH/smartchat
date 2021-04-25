@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_restful import Api
-from get_friends import get_names, get_ids
+from get_friends import get_names, get_ids, get_email_from_frineds
 from data.chats_table import Chats
 from data.users_table import User
 from forms.chats import ChatsForm, ChatsUsersForm
@@ -100,18 +100,19 @@ def add_chat():
 @app.route('/choose_users', methods=['GET', 'POST'])
 def choose_users():
     persons = current_user.friends
+    flag_p = False
     if persons:
         persons = get_names(persons)
     form = ChatsUsersForm()
+    db_sess = db_session.create_session()
     if form.validate_on_submit():
-        bar = request.form.getlist('pers')
-        print('nigga')
-        print(bar)
-        for pers in persons:
-            print(pers)
-            bar = request.form.getlist(pers)
-            print(bar)
-    return render_template('choose_users.html', title='Добавление участников', persons=persons, form=form)
+        if current_user.friends:
+            for email in str(form.email_friends.data).split(','):
+                if email in get_email_from_frineds(current_user.friends):
+                    print('OK')
+                else:
+                    message = "Такого пользователя у вас нет в контактах"
+    return render_template('choose_users.html', title='Добавление участников', persons=persons, form=form, message=message)
 
 
 @app.route('/person_info/<int:id>', methods=['GET', 'POST'])
@@ -178,6 +179,7 @@ def add_user():
         message = 'Такого пользователя не существует'
         return render_template('adduser.html', title='Добавить контакт', form=form, message=message)
     return render_template('adduser.html', title='Добавить контакт', form=form)
+
 
 
 def main():

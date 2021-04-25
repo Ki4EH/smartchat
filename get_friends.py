@@ -19,3 +19,12 @@ def get_ids(str_of_names):
         user = db_sess.query(User).filter(User.phone_number == phone_num).first()
         list_of_ids.append(str(user.id))
     return list_of_ids
+
+
+def get_email_from_frineds(str_of_id):
+    list_of_emails = []
+    db_sess = db_session.create_session()
+    for i in str_of_id.split(', '):
+        user = db_sess.query(User).filter(User.id == int(i)).first()
+        list_of_emails.append(str(user.email))
+    return list_of_emails
