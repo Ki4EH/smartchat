@@ -28,9 +28,9 @@ def wellcome():
         chats = current_user.chats
         if chats:
             chats.split(', ')
-        return render_template("chats.html", title='Your chats', chats=chats)
+        return render_template("chats.html", title='Твои чаты', chats=chats)
     else:
-        return render_template("wellcome.html", title='wellcome')
+        return render_template("wellcome.html", title='Главная страница')
 
 
 @app.route('/register', methods=['GET', 'POST'])
