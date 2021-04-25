@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="titles">
+    <center>Твои чаты</center>
+</div>
+<center><a href="/choose_users" class="btn btn-warning btn-lg">+ Создать чат</a></center>
+<div class="users_s_chats">
+    {% if chats %}
+        {% for chat in chats%}
+            <div class="col-md6 border rounded">
+                <h3>{{db_session.create_session().query(Chats).filter(Chats.id == int(chat)).first().chat_name}}</h3>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
