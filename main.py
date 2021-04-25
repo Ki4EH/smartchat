@@ -128,7 +128,7 @@ def person_info():
             user.email = form.email.data,
             user.phone_number = form.phone_num.data,
             user.about_user = form.about.data
-            user.friends =
+            # user.friend
             db_sess.commit()
             return redirect('/')
         else:
