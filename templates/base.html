@@ -15,8 +15,8 @@
         {% if current_user.is_authenticated %}
             <p>
                 <a class="btn btn-primary">Имя: {{ current_user.user_name }}</a>
-                <a class="btn btn-primary" href="/person_info/{{current_user.id}}">Информация о пользователе</a>
-                <a class="btn btn-primary" href="/logout">Выйти</a>
+                <a class="btn btn-info" href="/person_info/{{current_user.id}}">Информация о пользователе</a>
+                <a class="btn btn-danger" href="/logout">Выйти</a>
             </p>
         {% else %}
             <p>

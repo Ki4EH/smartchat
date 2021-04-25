@@ -122,9 +122,9 @@ def person_info(id):
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
-            form.name.data = user.user_name,
-            form.email.data = user.email,
-            form.phone_num.data = user.phone_number,
+            form.name.data = user.user_name
+            form.email.data = user.email
+            form.phone_num.data = user.phone_number
             form.about.data = user.about_user
             if user.friends:
                 form.contacts.data = '\n'.join(get_names(user.friends))
@@ -137,9 +137,9 @@ def person_info(id):
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
             print(form.name.data)
-            user.user_name = form.name.data,
-            user.email = form.email.data,
-            user.phone_number = form.phone_num.data,
+            user.user_name = form.name.data
+            user.email = form.email.data
+            user.phone_number = form.phone_num.data
             user.about_user = form.about.data
             if form.contacts.data:
                 user.friends = get_ids(form.contacts.data)
