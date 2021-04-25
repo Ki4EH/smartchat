@@ -1,6 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_restful import Api
+from flask_sqlalchemy import SQLAlchemy
 from get_friends import get_names
 from data.chats_table import Chats
 from data.users_table import User
@@ -14,6 +15,8 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'smartchat_project_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbdir/blogs.db'
+db_sess = SQLAlchemy(app)
 
 
 @login_manager.user_loader
@@ -136,13 +139,12 @@ def person_info():
     return render_template('person_info.html', title='Информация', form=form)
 
 
-
-
-def main():
-    db_session.global_init("db/blogs.db")
-    app.run()
+# def main():
+#     db_session.global_init("db/blogs.db")
+#     app.run()
 
 
 if __name__ == '__main__':
-    main()
+    db_session.global_init("blogs.db")
+    app.run(debug=True)
 
