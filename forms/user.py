@@ -19,7 +19,7 @@ class UpdateForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
     phone_num = StringField('Номер Телефона', validators=[DataRequired()])
     about = TextAreaField("Сведенье")
-    contacts = TextAreaField("Контакты")
+    contacts = TextAreaField("Контакты", _form="readonly")
     submit = SubmitField('Сохранить')
 
 

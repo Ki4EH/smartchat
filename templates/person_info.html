@@ -7,7 +7,7 @@
 <form action="" method="post">
     {{ form.hidden_tag() }}
     <p>
-        {{ form.name.label }}<br>
+        {{  form.name.label }}<br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
             <p class="alert alert-danger" role="alert">
@@ -45,7 +45,7 @@
     <a class="btn btn-success" href="/add_user">Добавить контакт</a>
     <p>
         {{ form.contacts.label }}<br>
-        {{ form.contacts(class="form-control") }}<br>
+        {{ form.contacts(class="form-control").form }}<br>
         {% for error in form.contacts.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}

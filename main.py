@@ -122,11 +122,12 @@ def person_info(id):
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
-            form.name.data = user.user_name,
-            form.email.data = user.email,
-            form.phone_num.data = user.phone_number,
+            form.name.data = user.user_name
+            form.email.data = user.email
+            form.phone_num.data = user.phone_number
             form.about.data = user.about_user
             if user.friends:
+                print(form.contacts)
                 form.contacts.data = '\n'.join(get_names(user.friends))
             else:
                 form.contacts.data = None
