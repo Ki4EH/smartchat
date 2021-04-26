@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="titles">
+    <center>Напишите сообщение</center>
+</div>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.about.label }}<br>
+        {{ form.about(class="form-control") }}<br>
+        {% for error in form.about.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-success") }}
+    <a class="btn btn-warning" href="/chat/{{ ch_id }}">Назад</a></p>
+    <h1>{{message}}</h1>
+</form>
+{% endblock %}

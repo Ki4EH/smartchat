@@ -1,13 +1,13 @@
-import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
-from flask_restful import Api
-from get_friends import get_names, get_ids, get_email_from_frineds, get_messages, get_ids_from_emails, get_chat_names
+from data.messages_table import Messages
+from forms.message import AddmessForm
+from gettings import get_names, get_ids, get_email_from_frineds, get_messages, get_ids_from_emails, get_chat_names
 from data.chats_table import Chats
 from data.users_table import User
 from forms.chats import ChatsForm, ChatsUsersForm
 from forms.user import RegisterForm, LoginForm, UpdateForm, AddingForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from data import db_session  #, news_api, news_resources
+from data import db_session
 
 
 app = Flask(__name__)
@@ -29,10 +29,12 @@ def wellcome():
     if current_user.is_authenticated:
         chats = current_user.chats
         if chats:
-            chats.split(', ')
-        else:
-            chats = [chats]
-        return render_template("chats.html", title='Твои чаты', chats=get_chat_names(chats))
+            if ', ' in chats:
+                chats = chats.split(', ')
+            elif chats:
+                chats = [chats]
+            return render_template("chats.html", title='Твои чаты', chats=get_chat_names(chats))
+        return render_template("chats.html", title='Твои чаты')
     else:
         return render_template("wellcome.html", title='Главная страница')
 
@@ -195,13 +197,45 @@ def add_user():
     return render_template('adduser.html', title='Добавить контакт', form=form, id=current_user.id)
 
 
-@app.route('/chat/<int:id>',  methods=['GET', 'POST'])
+@app.route('/chat/<int:id>', methods=['GET', 'POST'])
 def chat(id):
+    global CURRENT_CHAT
     db_sess = db_session.create_session()
-    chat = db_sess.query(Chats).filter(Chats.id == id).first()
-    ch_name = chat.chat_name
-    messages = get_messages(chat.id)
-    return render_template('user_s_chat.html', title='Чат', ch_name=ch_name, messages=messages)
+    ch = db_sess.query(Chats).filter(Chats.id == id).first()
+    ch_name = ch.chat_name
+    messages = get_messages(ch.id)
+    CURRENT_CHAT = ch
+    return render_template('user_s_chat.html', title='Чат', ch_name=ch_name, messages=messages, cur_id=current_user.id)
+
+
+@app.route('/writing_message', methods=['GET', 'POST'])
+def writing_message():
+    global CURRENT_CHAT
+    form = AddmessForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        message = Messages(
+            text=form.about.data,
+            user_id=current_user.id,
+            chat_id=CURRENT_CHAT.id)
+        db_sess.add(message)
+        db_sess.commit()
+        return redirect(f"/chat/{CURRENT_CHAT.id}")
+    return render_template('writing_message.html', ch_id=CURRENT_CHAT.id, form=form)
+
+
+@app.route('/message_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def message_delete(id):
+    global CURRENT_CHAT
+    db_sess = db_session.create_session()
+    mes = db_sess.query(Messages).filter(Messages.id == id, Messages.user_id == current_user.id).first()
+    if mes:
+        db_sess.delete(mes)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect(f'/chat/{CURRENT_CHAT.id}')
 
 
 def main():

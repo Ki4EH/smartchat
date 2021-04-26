@@ -35,9 +35,10 @@ def get_email_from_frineds(str_of_id):
 def get_messages(chat_id):
     list_of_mes = []
     db_sess = db_session.create_session()
-    mess = db_sess.query(Messages).filter(Messages.chat_id == chat_id).order_by(Messages.mes_created_date.desc()).all()
+    mess = db_sess.query(Messages).filter(Messages.chat_id == chat_id).order_by(Messages.mes_created_date.asc()).all()
     for msg in mess:
-        list_of_mes.append([msg.user_id, msg.text, msg.mes_created_date])
+        user = db_sess.query(User).filter(User.id == msg.user_id).first()
+        list_of_mes.append([user.user_name, msg.text, msg.mes_created_date, msg.user_id, msg.id])
     return list_of_mes
 
 
@@ -55,5 +56,5 @@ def get_chat_names(list_of_chats_ids):
     db_sess = db_session.create_session()
     for i in list_of_chats_ids:
         chat = db_sess.query(Chats).filter(Chats.id == int(i)).first()
-        list_of_names.append(chat.chat_name)
+        list_of_names.append([chat.chat_name, chat.id])
     return list_of_names

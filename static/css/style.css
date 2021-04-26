@@ -21,8 +21,7 @@ nav.base_meeting {
     font-size: 850%;
 }
 
-.users_s_chats {
-    background: #f0f0f0;
-    width: 30%;
-    float: left;
-   }
+.sending_message {
+    position:fixed;
+    bottom:0;
+}

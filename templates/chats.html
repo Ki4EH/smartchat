@@ -8,7 +8,7 @@
 {% if chats %}
     {% for chat in chats%}
         <div class="d-grid gap-2">
-            <center><button class="btn btn-light btn-lg" type="button">{{ chat }}</button></center>
+            <center><a class="btn btn-light btn-lg" href="/chat/{{ chat[1] }}" type="button">{{ chat[0] }}</a></center>
         </div>
     {% endfor %}
 {% endif %}

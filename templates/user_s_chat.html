@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="info_chat">
+    <header>
+    <h1>{{ ch_name }}</h1>
+    <a class="btn btn-success" href="/writing_message">Написать сообщение</a>
+    <a class="btn btn-warning" href="/">Назад</a>
+    </header>
+</div><br>
+{% for mes in messages%}
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">{{ mes[0] }}</h5>
+        <h5 class="card-subtitle mb-2 text-muted">{{ mes[2] }}</h5>
+        <h3 class="card-text">{{ mes[1] }}</h3>
+        {% if mes[3] == cur_id %}
+            <a href="/message_delete/{{ mes[4] }}" class="card-link">Удалить</a>
+        {% endif %}
+      </div>
+    </div>
+{% endfor %}
+{% endblock %}
