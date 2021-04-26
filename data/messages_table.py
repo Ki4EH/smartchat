@@ -10,9 +10,8 @@ class Messages(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     text = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    file_name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     mes_created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-    is_selected = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users_table.id"))
+    chat_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("chats_table.id"))
 
     user = orm.relation('User')

@@ -42,17 +42,19 @@
             </p>
         {% endfor %}
     </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}
+        <a class="btn btn-warning" href="/">Назад</a></p>
+    <h3><font face="Comic Sans MS">Не забывайте сохранять изменения! Если захотите сохранить новую информацию свыше- нажмите "Сохранить". Добавление контактов от кнопки "Сохранить" не зависит.</font></h3>
     <a class="btn btn-success" href="/add_user">Добавить контакт</a>
     <p>
         {{ form.contacts.label }}<br>
-        {{ form.contacts(class="form-control").form }}<br>
+        {{ form.contacts(class="form-control") }}<br>
         {% for error in form.contacts.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     <h1>{{message}}</h1>
 </form>
 {% endblock %}

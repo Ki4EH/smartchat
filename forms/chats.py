@@ -13,4 +13,5 @@ class ChatsForm(FlaskForm):
 
 class ChatsUsersForm(FlaskForm):
     submit = SubmitField('Применить')
-    email_friends = StringField('Почта друзей', validators=[DataRequired()])
+    email_friends = StringField('Впишите сюда почты контактов, который будут в чате, через запятую с пробелом',
+                                validators=[DataRequired()])

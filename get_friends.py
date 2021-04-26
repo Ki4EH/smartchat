@@ -1,4 +1,5 @@
 from data import db_session
+from data.messages_table import Messages
 from data.users_table import User
 
 
@@ -28,3 +29,12 @@ def get_email_from_frineds(str_of_id):
         user = db_sess.query(User).filter(User.id == int(i)).first()
         list_of_emails.append(str(user.email))
     return list_of_emails
+
+
+def get_messages(chat_id):
+    list_of_mes = []
+    db_sess = db_session.create_session()
+    mess = db_sess.query(Messages).filter(Messages.chat_id == chat_id).order_by(Messages.mes_created_date.desc()).all()
+    for msg in mess:
+        list_of_mes.append([msg.user_id, msg.text, msg.mes_created_date])
+    return list_of_mes

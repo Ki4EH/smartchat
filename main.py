@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_restful import Api
-from get_friends import get_names, get_ids, get_email_from_frineds
+from get_friends import get_names, get_ids, get_email_from_frineds, get_messages
 from data.chats_table import Chats
 from data.users_table import User
 from forms.chats import ChatsForm, ChatsUsersForm
@@ -85,7 +85,6 @@ def add_chat():
         chats = Chats()
         chats.chat_name = form.name.data
         chats.about_chat = form.about.data
-        chats.users = ChatsUsersForm().persons.data
 
         chats.collaborators = form.collaborators.data
         chats.is_finished = form.is_finished.data
@@ -99,20 +98,18 @@ def add_chat():
 
 @app.route('/choose_users', methods=['GET', 'POST'])
 def choose_users():
-    persons = current_user.friends
-    flag_p = False
-    if persons:
-        persons = get_names(persons)
     form = ChatsUsersForm()
-    db_sess = db_session.create_session()
     if form.validate_on_submit():
         if current_user.friends:
-            for email in str(form.email_friends.data).split(','):
-                if email in get_email_from_frineds(current_user.friends):
-                    print('OK')
-                else:
-                    message = "Такого пользователя у вас нет в контактах"
-    return render_template('choose_users.html', title='Добавление участников', persons=persons, form=form, message=message)
+            for email in str(form.email_friends.data).split(', '):
+                if email not in get_email_from_frineds(current_user.friends):
+                    mes = f"Пользователя с почтой {email} у вас нет в контактах. Отредактируйте или уберите почту."
+                    return render_template('choose_users.html', title='Добавление участников', form=form, message=mes)
+            # 000
+            return redirect('/addchat')
+        mes = f"Пользователя/ей с почтой/ами {form.email_friends.data} у вас нет в контактах."
+        return render_template('choose_users.html', title='Добавление участников', form=form, message=mes)
+    return render_template('choose_users.html', title='Добавление участников', form=form)
 
 
 @app.route('/person_info/<int:id>', methods=['GET', 'POST'])
@@ -128,7 +125,6 @@ def person_info(id):
             form.phone_num.data = user.phone_number
             form.about.data = user.about_user
             if user.friends:
-                print(form.contacts)
                 form.contacts.data = '\n'.join(get_names(user.friends))
             else:
                 form.contacts.data = None
@@ -138,15 +134,10 @@ def person_info(id):
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.id == id).first()
         if user and user == current_user:
-            print(form.name.data)
             user.user_name = form.name.data
             user.email = form.email.data
             user.phone_number = form.phone_num.data
             user.about_user = form.about.data
-            if form.contacts.data:
-                user.friends = get_ids(form.contacts.data)
-            else:
-                user.friends = None
             db_sess.commit()
             return redirect('/')
         else:
@@ -165,11 +156,13 @@ def add_user():
         if user:
             if user == current_user:
                 message = 'Мы понимаем, что вы себя любите, но не добавлять же себе свой же контакт!'
-                return render_template('adduser.html', title='Добавить контакт', form=form, message=message)
+                return render_template('adduser.html', title='Добавить контакт', form=form, message=message,
+                                       id=current_user.id)
             elif current_user.friends:
                 if str(user.id) in current_user.friends.split(', '):
                     message = 'У вас уже есть такой контакт'
-                    return render_template('adduser.html', title='Добавить контакт', form=form, message=message)
+                    return render_template('adduser.html', title='Добавить контакт', form=form, message=message,
+                                           id=current_user.id)
                 current_user.friends = ', '.join([current_user.friends, str(user.id)])
             else:
                 current_user.friends = str(user.id)
@@ -177,9 +170,17 @@ def add_user():
             db_sess.commit()
             return redirect(f"/person_info/{current_user.id}")
         message = 'Такого пользователя не существует'
-        return render_template('adduser.html', title='Добавить контакт', form=form, message=message)
-    return render_template('adduser.html', title='Добавить контакт', form=form)
+        return render_template('adduser.html', title='Добавить контакт', form=form, message=message, id=current_user.id)
+    return render_template('adduser.html', title='Добавить контакт', form=form, id=current_user.id)
 
+
+@app.route('/chat/<int:id>',  methods=['GET', 'POST'])
+def chat(id):
+    db_sess = db_session.create_session()
+    chat = db_sess.query(Chats).filter(Chats.id == id).first()
+    ch_name = chat.chat_name
+    messages = get_messages(chat.id)
+    return render_template('user_s_chat.html', title='Чат', ch_name=ch_name, messages=messages)
 
 
 def main():

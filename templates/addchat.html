@@ -24,7 +24,8 @@
             </p>
         {% endfor %}
     </p>
-    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}
+        <a class="btn btn-warning" href="/choose_users">Назад</a></p>
     <h1>{{message}}</h1>
 </form>
 {% endblock %}
