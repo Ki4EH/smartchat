@@ -1,4 +1,5 @@
 from data import db_session
+from data.chats_table import Chats
 from data.messages_table import Messages
 from data.users_table import User
 
@@ -38,3 +39,21 @@ def get_messages(chat_id):
     for msg in mess:
         list_of_mes.append([msg.user_id, msg.text, msg.mes_created_date])
     return list_of_mes
+
+
+def get_ids_from_emails(list_of_emails):
+    list_of_ids = []
+    db_sess = db_session.create_session()
+    for i in list_of_emails.split(', '):
+        user = db_sess.query(User).filter(User.email == i).first()
+        list_of_ids.append(str(user.id))
+    return list_of_ids
+
+
+def get_chat_names(list_of_chats_ids):
+    list_of_names = []
+    db_sess = db_session.create_session()
+    for i in list_of_chats_ids:
+        chat = db_sess.query(Chats).filter(Chats.id == int(i)).first()
+        list_of_names.append(chat.chat_name)
+    return list_of_names

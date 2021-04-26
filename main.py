@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, render_template, redirect, session, make_response, request, abort, jsonify
 from flask_restful import Api
-from get_friends import get_names, get_ids, get_email_from_frineds, get_messages
+from get_friends import get_names, get_ids, get_email_from_frineds, get_messages, get_ids_from_emails, get_chat_names
 from data.chats_table import Chats
 from data.users_table import User
 from forms.chats import ChatsForm, ChatsUsersForm
@@ -14,6 +14,8 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'smartchat_project_secret_key'
+CURRENT_CHAT = None
+CREATING_CHAT_USERS = None
 
 
 @login_manager.user_loader
@@ -28,7 +30,9 @@ def wellcome():
         chats = current_user.chats
         if chats:
             chats.split(', ')
-        return render_template("chats.html", title='Твои чаты', chats=chats)
+        else:
+            chats = [chats]
+        return render_template("chats.html", title='Твои чаты', chats=get_chat_names(chats))
     else:
         return render_template("wellcome.html", title='Главная страница')
 
@@ -40,7 +44,7 @@ def reqister():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация', form=form, message="Пароли не совпадают")
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first() or\
+        if db_sess.query(User).filter(User.email == form.email.data).first() and\
                 db_sess.query(User).filter(User.phone_number == form.phone_num.data).first():
             return render_template('register.html', title='Регистрация', form=form, message="Такой юзер уже есть")
         user = User(
@@ -79,33 +83,50 @@ def logout():
 @app.route('/addchat',  methods=['GET', 'POST'])
 @login_required
 def add_chat():
+    global CURRENT_CHAT
+    global CREATING_CHAT_USERS
     form = ChatsForm()
     if form.validate_on_submit():
+        if len(CREATING_CHAT_USERS) > 1:
+            users = ', '.join(CREATING_CHAT_USERS)
+        else:
+            users = CREATING_CHAT_USERS[0]
         db_sess = db_session.create_session()
-        chats = Chats()
-        chats.chat_name = form.name.data
-        chats.about_chat = form.about.data
-
-        chats.collaborators = form.collaborators.data
-        chats.is_finished = form.is_finished.data
-        current_user.jobs.append(chats)
-
-        db_sess.merge(current_user)
+        chat = Chats(
+            chat_name=form.name.data,
+            about_chat=form.about.data,
+            admin=current_user.id,
+            users=users
+        )
+        db_sess.add(chat)
         db_sess.commit()
-        return redirect('/')
+        for id in CREATING_CHAT_USERS:
+            u = db_sess.query(User).filter(User.id == id).first()
+            if u.chats:
+                u.chats = ', '.join([u.chats, str(chat.id)])
+            else:
+                u.chats = str(chat.id)
+            db_sess.merge(u)
+        db_sess.commit()
+        CURRENT_CHAT = chat
+        CREATING_CHAT_USERS = None
+        return redirect(f'/chat/{CURRENT_CHAT.id}')
     return render_template('addchat.html', title='Создание чата', form=form)
 
 
 @app.route('/choose_users', methods=['GET', 'POST'])
 def choose_users():
+    global CREATING_CHAT_USERS
+    CREATING_CHAT_USERS = None
     form = ChatsUsersForm()
     if form.validate_on_submit():
         if current_user.friends:
-            for email in str(form.email_friends.data).split(', '):
+            for email in form.email_friends.data.split(', '):
                 if email not in get_email_from_frineds(current_user.friends):
                     mes = f"Пользователя с почтой {email} у вас нет в контактах. Отредактируйте или уберите почту."
                     return render_template('choose_users.html', title='Добавление участников', form=form, message=mes)
-            # 000
+            CREATING_CHAT_USERS = get_ids_from_emails(form.email_friends.data)
+            CREATING_CHAT_USERS.append(str(current_user.id))
             return redirect('/addchat')
         mes = f"Пользователя/ей с почтой/ами {form.email_friends.data} у вас нет в контактах."
         return render_template('choose_users.html', title='Добавление участников', form=form, message=mes)
